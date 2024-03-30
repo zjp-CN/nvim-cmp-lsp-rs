@@ -1,30 +1,5 @@
-local rust = require("cmp_lsp_rs.rust")
+local util = require("cmp_lsp_rs.rust.util")
 local M = {}
-
----@param data1 RACompletionResolveData
----@param data2 RACompletionResolveData
-local _import = function(data1, data2)
-	-- both are imported items
-	-- usually RA emits exact one import path and item name;
-	-- for multiple same item names, RA will emit distinct completion_items for their own paths
-	local import1 = data1.imports[1]
-	local import2 = data2.imports[1]
-	local path_ord = vim.stricmp(import1.full_import_path, import2.full_import_path)
-	if path_ord == -1 then
-		-- e1 from lexically less path
-		return true
-	elseif path_ord == 1 then
-		-- e1 from lexically greater path
-		return false
-	else
-		local item_ord = vim.stricmp(import1.imported_name, import2.imported_name)
-		if item_ord == 1 then
-			return false
-		elseif item_ord == -1 then
-			return true
-		end
-	end
-end
 
 ---@param e1 cmp.Entry
 ---@param e2 cmp.Entry
@@ -43,7 +18,7 @@ local _inscope_inherent_import = function(e1, e2)
 			return kind_result
 		end
 
-		return rust._inherent(e1, e2)
+		return util._inherent(e1, e2)
 	end
 
 	if data2 == nil then
@@ -61,7 +36,7 @@ local _inscope_inherent_import = function(e1, e2)
 		return kind_result
 	end
 
-	return _import(data1, data2)
+	return util._import(data1, data2)
 end
 
 ---## Example
