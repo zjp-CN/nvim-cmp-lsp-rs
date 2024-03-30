@@ -47,7 +47,7 @@ local util = require("cmp_lsp_rs.rust.util")
 ---@param e1 cmp.Entry
 ---@param e2 cmp.Entry
 M.inherent_import_inscope = function(e1, e2)
-	local kind_result = require("cmp_lsp_rs.comparators").sort_by_kind(e1, e2)
+	local kind_result = util.sort_by_kind(e1, e2)
 	if kind_result ~= nil then
 		return kind_result
 	end

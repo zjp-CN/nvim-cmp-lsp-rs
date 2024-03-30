@@ -1,5 +1,5 @@
-local util = require("cmp_lsp_rs.rust.util")
 local M = {}
+local util = require("cmp_lsp_rs.rust.util")
 
 ---@param e1 cmp.Entry
 ---@param e2 cmp.Entry
@@ -13,7 +13,7 @@ local _inscope_inherent = function(e1, e2)
 	local data2 = c2.data
 
 	if data1 == nil and data2 == nil then
-		local kind_result = require("cmp_lsp_rs.comparators").sort_by_kind(e1, e2)
+		local kind_result = util.sort_by_kind(e1, e2)
 		if kind_result ~= nil then
 			return kind_result
 		end
@@ -31,7 +31,7 @@ local _inscope_inherent = function(e1, e2)
 		return true
 	end
 
-	return require("cmp_lsp_rs.comparators").sort_by_kind(e1, e2)
+	return util.sort_by_kind(e1, e2)
 end
 
 ---## Example
