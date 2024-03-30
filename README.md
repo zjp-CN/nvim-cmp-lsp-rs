@@ -3,25 +3,28 @@
 Refine completion behavior by applying useful filtering and sorting for candidates,
 but only specific to Rust filetype (or rather Rust-Analyzer).
 
-## nvim-cmp-lsp-rs
-
-Refine completion behavior by applying useful filtering and sorting for candidates,
-but only specific to Rust filetype (or rather Rust-Analyzer).
-
 
 Experience before:
 [![](https://github.com/zjp-CN/nvim-cmp-lsp-rs/assets/25300418/e3b00e5e-7aa2-4a46-8704-7351f24d7ded)][#1]
 
 [#1]: https://github.com/zjp-CN/nvim-cmp-lsp-rs/issues/1
 
-and after:
+and after (both are improved, which is better depends on you!)
 
 ![](https://github.com/zjp-CN/nvim-cmp-lsp-rs/assets/25300418/f69d8ec9-8611-4a0a-a4ef-b0e8f38ac8c1)
 
 ![](https://github.com/zjp-CN/nvim-cmp-lsp-rs/assets/25300418/83bda386-a5e8-4040-ae7f-56cd9501da4f)
+
+One of the improvements is alphabetic sortings separately on inherent methods,
+in-scope trait methods and to-be-imported trait methods.
+
+For more usage, jump to [Usage](#usage) section by skipping mutter in Background.
+
 ### Background
 
-Have you bee aware of the great [comparators][cmp-comparators] in [nvim-cmp]?
+<details>
+
+<summary> Have you been aware of the great [comparators][cmp-comparators] in [nvim-cmp]? <summary>
 
 [nvim-cmp]: https://github.com/hrsh7th/nvim-cmp/tree/main
 [cmp-comparators]: https://github.com/hrsh7th/nvim-cmp/blob/97dc716fc914c46577a4f254035ebef1aa72558a/lua/cmp/config/compare.lua
@@ -96,6 +99,8 @@ Why are you telling me this story or details?
   neovim and nvim-cmp power us.
 * I don't want to extend the sorting functions to other LSP/languanges. So the background hopefully can
   inspire people starting out.
+
+</summary>
 
 ### Usage
 
