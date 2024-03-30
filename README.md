@@ -4,12 +4,12 @@ Refine completion behavior by applying useful filtering and sorting for candidat
 but only specific to Rust filetype (or rather Rust-Analyzer).
 
 
-Experience before:
+Before (click the picture and jump to #1 to see details)
 [![](https://github.com/zjp-CN/nvim-cmp-lsp-rs/assets/25300418/e3b00e5e-7aa2-4a46-8704-7351f24d7ded)][#1]
 
 [#1]: https://github.com/zjp-CN/nvim-cmp-lsp-rs/issues/1
 
-and after (both are improved, which is better depends on you!)
+and after (both are improved, which is better depends on your usecase!)
 
 ![](https://github.com/zjp-CN/nvim-cmp-lsp-rs/assets/25300418/f69d8ec9-8611-4a0a-a4ef-b0e8f38ac8c1)
 
