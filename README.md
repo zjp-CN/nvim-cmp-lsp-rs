@@ -18,7 +18,7 @@ and after (both are improved, which is better depends on you!)
 One of the improvements is alphabetic sortings separately on inherent methods,
 in-scope trait methods and to-be-imported trait methods.
 
-For more usage, jump to [Usage](#usage) section by skipping mutter in Background.
+For more usage, jump to [Usage](#usage) section by skipping mutters in Background.
 
 
 <details>

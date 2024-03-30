@@ -100,15 +100,6 @@ function M.kind:update(f)
   M.kind:new(merge(kinds))
 end
 
--- ---@param k CompletionItemKind
--- M.kind:update(function(k)
--- 	return {
--- 		k.Module,
--- 		k.Variable,
--- 	}
--- end)
--- print(vim.inspect(M.kind))
-
 ---@param e1 cmp.Entry
 ---@param e2 cmp.Entry
 M.sort_by_kind = function(e1, e2)
