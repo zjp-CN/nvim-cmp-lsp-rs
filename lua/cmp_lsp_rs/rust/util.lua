@@ -1,6 +1,6 @@
 local M = {}
 
-M.sort_by_kind = require("cmp_lsp_rs.comparators").sort_by_kind
+M.sort_by_kind = require("cmp_lsp_rs.sort_by_kind").sort_by_kind
 
 ---@param data1 RACompletionResolveData
 ---@param data2 RACompletionResolveData
