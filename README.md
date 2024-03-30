@@ -20,11 +20,12 @@ in-scope trait methods and to-be-imported trait methods.
 
 For more usage, jump to [Usage](#usage) section by skipping mutter in Background.
 
-### Background
 
 <details>
 
-<summary>Have you been aware of the great [comparators][cmp-comparators] in [nvim-cmp]?</summary>
+<summary>Background</summary>
+
+Have you been aware of the great [comparators][cmp-comparators] in [nvim-cmp]?
 
 [nvim-cmp]: https://github.com/hrsh7th/nvim-cmp/tree/main
 [cmp-comparators]: https://github.com/hrsh7th/nvim-cmp/blob/97dc716fc914c46577a4f254035ebef1aa72558a/lua/cmp/config/compare.lua
@@ -100,7 +101,7 @@ Why are you telling me this story or details?
 * I don't want to extend the sorting functions to other LSP/languanges. So the background hopefully can
   inspire people starting out.
 
-</summary>
+</details>
 
 ### Usage
 
