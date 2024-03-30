@@ -136,7 +136,7 @@ end
 
 ---@param e1 cmp.Entry
 ---@param e2 cmp.Entry
-local _inherent = function(e1, e2)
+M._inherent = function(e1, e2)
 	local c1 = e1.completion_item
 	local c2 = e2.completion_item
 	local l1 = c1.label
@@ -175,7 +175,7 @@ end
 
 ---@param e1 cmp.Entry
 ---@param e2 cmp.Entry
-local _inscope = function(e1, e2)
+local _inscope_inherent = function(e1, e2)
 	local c1 = e1.completion_item
 	local c2 = e2.completion_item
 
@@ -190,7 +190,7 @@ local _inscope = function(e1, e2)
 			return kind_result
 		end
 
-		return _inherent(e1, e2)
+		return M._inherent(e1, e2)
 	end
 
 	if data2 == nil then
@@ -258,7 +258,7 @@ M.inscope_inherent = function(e1, e2)
 		and e1.source.name == "nvim_lsp"
 		and e2.source.name == "nvim_lsp"
 	then
-		return _inscope(e1, e2)
+		return _inscope_inherent(e1, e2)
 	end
 	return require("cmp_lsp_rs.comparators").sort_by_kind(e1, e2)
 end

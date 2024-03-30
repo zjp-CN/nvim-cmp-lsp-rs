@@ -1,46 +1,9 @@
+local rust = require("cmp_lsp_rs.rust")
 local M = {}
-
----@param e1 cmp.Entry
----@param e2 cmp.Entry
-local _locality_wins_with_import = function(e1, e2)
-	local c1 = e1.completion_item
-	local c2 = e2.completion_item
-
-	---@type RAData
-	local data1 = c1.data
-	---@type RAData
-	local data2 = c2.data
-
-	if data1 == nil and data2 == nil then
-		local kind_result = require("cmp_lsp_rs.comparators").sort_by_kind(e1, e2)
-		if kind_result ~= nil then
-			return kind_result
-		end
-
-		return M._inherent_first(e1, e2)
-	end
-
-	if data2 == nil then
-		-- e1 needs to be imported, but e2 not, thus low priority for e1
-		return false
-	end
-
-	if data1 == nil then
-		-- e2 needs to be imported, thus high priority for e1
-		return true
-	end
-
-	local kind_result = require("cmp_lsp_rs.comparators").sort_by_kind(e1, e2)
-	if kind_result ~= nil then
-		return kind_result
-	end
-
-	return M._import(data1, data2)
-end
 
 ---@param data1 RACompletionResolveData
 ---@param data2 RACompletionResolveData
-M._import = function(data1, data2)
+local _import = function(data1, data2)
 	-- both are imported items
 	-- usually RA emits exact one import path and item name;
 	-- for multiple same item names, RA will emit distinct completion_items for their own paths
@@ -65,14 +28,100 @@ end
 
 ---@param e1 cmp.Entry
 ---@param e2 cmp.Entry
-M.locality_wins_with_import = function(e1, e2)
+local _inscope_inherent_import = function(e1, e2)
+	local c1 = e1.completion_item
+	local c2 = e2.completion_item
+
+	---@type RAData
+	local data1 = c1.data
+	---@type RAData
+	local data2 = c2.data
+
+	if data1 == nil and data2 == nil then
+		local kind_result = require("cmp_lsp_rs.comparators").sort_by_kind(e1, e2)
+		if kind_result ~= nil then
+			return kind_result
+		end
+
+		return rust._inherent(e1, e2)
+	end
+
+	if data2 == nil then
+		-- e1 needs to be imported, but e2 not, thus low priority for e1
+		return false
+	end
+
+	if data1 == nil then
+		-- e2 needs to be imported, thus high priority for e1
+		return true
+	end
+
+	local kind_result = require("cmp_lsp_rs.comparators").sort_by_kind(e1, e2)
+	if kind_result ~= nil then
+		return kind_result
+	end
+
+	return _import(data1, data2)
+end
+
+---## Example
+---
+---```lua
+---local cmp_rs = require("cmp_lsp_rs")
+---local comparators = cmp_rs.comparators
+---
+---opts.sorting.comparators = {
+---  comparators.inscope_inherent_import,
+---  comparators.sort_by_label_but_underscore_last,
+---}
+---```
+---
+---## Sorting Behaviors
+---
+---`inscope_inherent` sorting behaviors, and plus alphabetic sortings on import traits.
+---
+---* in-scope items
+---  * kind order: Field -> Method -> rest
+---    * alphabetic sort on item names separately in the same kind
+---  * method order: inherent -> trait
+---    * alphabetic sort on method names in inherent
+---    * alphabetic sort on trait names in trait methods
+---    * alphabetic sort on method names in the same trait
+---* import items
+---  * kind order
+---    * alphabetic sort on item names separately in the same kind
+---  * trait method order
+---    * alphabetic sort on trait names in trait methods
+---    * alphabetic sort on method names in the same trait
+---
+---```rust
+---[entry 1] s
+---[entry 2] render(…)
+---[entry 3] zzzz()
+---[entry 4] f() (as AAA)
+---[entry 5] z() (as AAA)
+---[entry 6] into() (as Into)
+---[entry 7] try_into() (as TryInto)
+---... other kinds
+---[entry 24] bg() (use color_eyre::owo_colors::OwoColorize)
+---... methods from color_eyre::owo_colors::OwoColorize trait
+---[entry 79] yellow() (use color_eyre::owo_colors::OwoColorize)
+---[entry 80] type_id() (use std::any::Any)
+---[entry 81] borrow() (use std::borrow::Borrow)
+---[entry 82] borrow_mut() (use std::borrow::BorrowMut)
+---... other kinds
+---```
+---
+---@param e1 cmp.Entry
+---@param e2 cmp.Entry
+M.inscope_inherent_import = function(e1, e2)
 	if
 		e1.context.filetype == "rust"
 		and e2.context.filetype == "rust"
 		and e1.source.name == "nvim_lsp"
 		and e2.source.name == "nvim_lsp"
 	then
-		return _locality_wins_with_import(e1, e2)
+		return _inscope_inherent_import(e1, e2)
 	end
 	return require("cmp_lsp_rs.comparators").sort_by_kind(e1, e2)
 end
