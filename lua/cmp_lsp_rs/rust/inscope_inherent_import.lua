@@ -4,39 +4,39 @@ local util = require("cmp_lsp_rs.rust.util")
 ---@param e1 cmp.Entry
 ---@param e2 cmp.Entry
 local _inscope_inherent_import = function(e1, e2)
-	local c1 = e1.completion_item
-	local c2 = e2.completion_item
+  local c1 = e1.completion_item
+  local c2 = e2.completion_item
 
-	---@type RAData
-	local data1 = c1.data
-	---@type RAData
-	local data2 = c2.data
+  ---@type RAData
+  local data1 = c1.data
+  ---@type RAData
+  local data2 = c2.data
 
-	if data1 == nil and data2 == nil then
-		local kind_result = util.sort_by_kind(e1, e2)
-		if kind_result ~= nil then
-			return kind_result
-		end
+  if data1 == nil and data2 == nil then
+    local kind_result = util.sort_by_kind(e1, e2)
+    if kind_result ~= nil then
+      return kind_result
+    end
 
-		return util._inherent(e1, e2)
-	end
+    return util._inherent(e1, e2)
+  end
 
-	if data2 == nil then
-		-- e1 needs to be imported, but e2 not, thus low priority for e1
-		return false
-	end
+  if data2 == nil then
+    -- e1 needs to be imported, but e2 not, thus low priority for e1
+    return false
+  end
 
-	if data1 == nil then
-		-- e2 needs to be imported, thus high priority for e1
-		return true
-	end
+  if data1 == nil then
+    -- e2 needs to be imported, thus high priority for e1
+    return true
+  end
 
-	local kind_result = util.sort_by_kind(e1, e2)
-	if kind_result ~= nil then
-		return kind_result
-	end
+  local kind_result = util.sort_by_kind(e1, e2)
+  if kind_result ~= nil then
+    return kind_result
+  end
 
-	return util._import(data1, data2)
+  return util._import(data1, data2)
 end
 
 ---## Example
@@ -90,15 +90,15 @@ end
 ---@param e1 cmp.Entry
 ---@param e2 cmp.Entry
 M.inscope_inherent_import = function(e1, e2)
-	if
-		e1.context.filetype == "rust"
-		and e2.context.filetype == "rust"
-		and e1.source.name == "nvim_lsp"
-		and e2.source.name == "nvim_lsp"
-	then
-		return _inscope_inherent_import(e1, e2)
-	end
-	return util.sort_by_kind(e1, e2)
+  if
+    e1.context.filetype == "rust"
+    and e2.context.filetype == "rust"
+    and e1.source.name == "nvim_lsp"
+    and e2.source.name == "nvim_lsp"
+  then
+    return _inscope_inherent_import(e1, e2)
+  end
+  return util.sort_by_kind(e1, e2)
 end
 
 return M
