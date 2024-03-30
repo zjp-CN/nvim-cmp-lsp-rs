@@ -190,8 +190,8 @@ M.sort_by_label_but_underscore_last = function(e1, e2)
 	return l1 < l2
 end
 
-M.rust_in_scope_or_inherent_first = require("cmp_lsp_rs.rust").rust_in_scope_or_inherent_first
-M.rust_in_scope_inherent_import_with_kind = require("cmp_lsp_rs.rust").rust_in_scope_inherent_import_with_kind
-M.rust_in_scope_inherent_with_kind = require("cmp_lsp_rs.rust").rust_in_scope_inherent_with_kind
+M.locality_wins_with_import = require("cmp_lsp_rs.rust").locality_wins_with_import
+M.inherent_import_inscope = require("cmp_lsp_rs.rust").inherent_import_inscope
+M.inscope_inherent = require("cmp_lsp_rs.rust").inscope_inherent
 
 return M
