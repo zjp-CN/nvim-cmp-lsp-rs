@@ -36,7 +36,7 @@ M.kind_ordering = {
 ---The input is prior.
 ---@param kinds lsp.CompletionItemKind[]
 local merge = function(kinds)
-	-- check the nil or invalid input case
+	-- check the nil or invalid input within the input (whether kinds table has a hole)
 	local valid = {}
 	local i = 0
 	for idx, k in pairs(kinds) do
@@ -45,6 +45,8 @@ local merge = function(kinds)
 			table.insert(valid, k)
 		end
 	end
+	-- FIXME: there is a bug to pass the check if the last element from input is invalid,
+	-- because lua's pairs won't iterate over it. Lua neither seems to provide a good mechanism here...
 	if i ~= #valid then
 		error(string.format("Some kind is missing. Got %s, but %s invalid kind is found.", i, i - #valid))
 	end
@@ -89,8 +91,9 @@ function M.kind:new(kinds)
 	end
 	self.ordering = ordering
 end
+
+-- Set default ordering
 M.kind:new(M.kind_ordering)
-print(vim.inspect(M.kind.ordering))
 
 ---@class CompletionItemKind
 ---@field Text integer
@@ -187,6 +190,8 @@ M.sort_by_label_but_underscore_last = function(e1, e2)
 	return l1 < l2
 end
 
-M.rust_cmp = require("cmp_lsp_rs.rust").rust_cmp
+M.rust_in_scope_or_inherent_first = require("cmp_lsp_rs.rust").rust_in_scope_or_inherent_first
+M.rust_in_scope_inherent_import_with_kind = require("cmp_lsp_rs.rust").rust_in_scope_inherent_import_with_kind
+M.rust_in_scope_inherent_with_kind = require("cmp_lsp_rs.rust").rust_in_scope_inherent_with_kind
 
 return M
