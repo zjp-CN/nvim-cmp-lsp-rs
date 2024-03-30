@@ -2,8 +2,9 @@ local M = {}
 local lsp = require("cmp.types.lsp")
 local kind = lsp.CompletionItemKind
 
+---Default kind ordering.
 ---@type lsp.CompletionItemKind[]
-M.kind_ordering = {
+local kind_ordering = {
   kind.Variable,
   kind.Value,
   kind.Field,
@@ -40,7 +41,7 @@ local merge = function(kinds)
   local i = 0
   for idx, k in pairs(kinds) do
     i = idx
-    if vim.tbl_contains(M.kind_ordering, k) then
+    if vim.tbl_contains(kind_ordering, k) then
       table.insert(valid, k)
     end
   end
@@ -50,7 +51,7 @@ local merge = function(kinds)
     error(string.format("Some kind is missing. Got %s, but %s invalid kind is found.", i, i - #valid))
   end
 
-  for _, k in ipairs(M.kind_ordering) do
+  for _, k in ipairs(kind_ordering) do
     if not vim.tbl_contains(valid, k) then
       table.insert(kinds, k)
     end
@@ -88,15 +89,33 @@ function M.kind:new(kinds)
 end
 
 -- Set default ordering
-M.kind:new(M.kind_ordering)
+M.kind:new(kind_ordering)
 
----Update the kind sorting order with call back.
+---@alias KindSelect fun(kind: CompletionItemKind): lsp.CompletionItemKind[]
+---@alias Kinds lsp.CompletionItemKind[] | lsp.CompletionItemKind
+
+---Update the kind sorting order with one kind integer or a list of integer or
+---a call back that returns a list of integer.
 ---
----In the callback `function(k)`, you can specify `k.Module` or somthing
----to easily write the kinds.
----@param f fun(kind: CompletionItemKind): lsp.CompletionItemKind[]
+---In the callback `function(k)`, you can specify `k.Module` or somthing in lsp
+---context to easily write the kinds.
+---
+---NOTE: the integer is not checked for range. Be careful to the CompletionItemKind
+---meaning when you specify it in integer form.
+---
+---Usaully you pass incomplete kind set in: the rest kinds will be appended
+---to the set as the default kind ordering in this plugin is specified.
+---@param f Kinds | KindSelect
 function M.kind:update(f)
-  local kinds = f(kind)
+  local kinds = {}
+  -- FIXME: need to check the range
+  if type(f) == "table" then
+    kinds = f
+  elseif type(f) == "number" then
+    kinds = { f }
+  elseif type(f) == "function" then
+    kinds = f(kind)
+  end
   M.kind:new(merge(kinds))
 end
 
