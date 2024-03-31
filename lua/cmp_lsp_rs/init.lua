@@ -34,19 +34,6 @@ M.kind.get = function()
   return set
 end
 
----Override with a new list of kind ordering.
----
----The input is a list of integer that lsp.CompletionItemKind represents.
----Recommend to pass a complete ordering list as much as possible,
----in case of poor UX in seeing annoying overlapping kinds on candidates.
----
----If you don't want to write a complete ordering, use `.update()` instead,
----which handles incomplete case by merging your and the default.
----@param kinds lsp.CompletionItemKind[]
-M.kind.replace = function(kinds)
-  kind:replace(kinds)
-end
-
 ---Set the kinds with most priorities.
 ---
 ---This will update the kind sorting order with one kind integer or a list of

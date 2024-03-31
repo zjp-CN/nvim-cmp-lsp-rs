@@ -219,7 +219,6 @@ Dynamic Kind Sorting ~
   :lua rs = require'cmp_lsp_rs'
   :lua rs.kind.get()    -- query
   :lua rs.kind.set(...) -- set incomplete kind ordering with most priorities
-  :lua rs.kind.replace(...) -- set complete kind ordering
 <
 
 
