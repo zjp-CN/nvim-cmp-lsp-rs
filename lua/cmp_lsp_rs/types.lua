@@ -1,16 +1,16 @@
 ---@meta
 
----@class RACompletionImport
+---@class cmp_lsp_rs.RACompletionImport
 ---@field full_import_path string
 ---@field imported_name string
 
----@class RACompletionResolveData
----@field imports RACompletionImport[]
+---@class cmp_lsp_rs.RACompletionResolveData
+---@field imports cmp_lsp_rs.RACompletionImport[]
 ---@field position lsp.TextDocumentPositionParams
 
----@alias RAData RACompletionResolveData | nil
+---@alias cmp_lsp_rs.RAData cmp_lsp_rs.RACompletionResolveData | nil
 
----@class CompletionItemKind
+---@class cmp_lsp_rs.CompletionItemKind
 ---@field Text integer
 ---@field Method integer
 ---@field Function integer
@@ -36,3 +36,9 @@
 ---@field Event integer
 ---@field Operator integer
 ---@field TypeParameter integer
+
+---A handy way to write the CompletionItemKind from the argument.
+---@alias cmp_lsp_rs.KindSelect fun(kind: cmp_lsp_rs.CompletionItemKind): lsp.CompletionItemKind[]
+
+---A kind or a list of kind.
+---@alias cmp_lsp_rs.Kinds lsp.CompletionItemKind[] | lsp.CompletionItemKind

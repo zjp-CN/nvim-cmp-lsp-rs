@@ -78,7 +78,7 @@ end
 
 ---@param entry cmp.Entry
 M.rust_filter_out_methods_to_be_imported = function(entry)
-  ---@type RAData
+  ---@type cmp_lsp_rs.RAData
   local data = entry.completion_item.data
 
   -- only filter out imported methods

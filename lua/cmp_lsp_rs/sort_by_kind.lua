@@ -91,9 +91,6 @@ end
 -- Set default ordering
 M.kind:new(kind_ordering)
 
----@alias KindSelect fun(kind: CompletionItemKind): lsp.CompletionItemKind[]
----@alias Kinds lsp.CompletionItemKind[] | lsp.CompletionItemKind
-
 ---Update the kind sorting order with one kind integer or a list of integer or
 ---a call back that returns a list of integer.
 ---
@@ -103,9 +100,9 @@ M.kind:new(kind_ordering)
 ---NOTE: the integer is not checked for range. Be careful to the CompletionItemKind
 ---meaning when you specify it in integer form.
 ---
----Usaully you pass incomplete kind set in: the rest kinds will be appended
----to the set as the default kind ordering in this plugin is specified.
----@param f Kinds | KindSelect
+---Usaully you pass incomplete kind list in: the rest kinds will be appended
+---to the list in the order specified by the default kind ordering in this plugin.
+---@param f cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect
 function M.kind:update(f)
   local kinds = {}
   -- FIXME: need to check the range

@@ -7,9 +7,9 @@ local _inscope_inherent = function(e1, e2)
   local c1 = e1.completion_item
   local c2 = e2.completion_item
 
-  ---@type RAData
+  ---@type cmp_lsp_rs.RAData
   local data1 = c1.data
-  ---@type RAData
+  ---@type cmp_lsp_rs.RAData
   local data2 = c2.data
 
   if data1 == nil and data2 == nil then

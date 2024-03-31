@@ -1,7 +1,23 @@
 local M = {}
 
-M.setup = function()
+---@class cmp_lsp_rs.Opts
+---@field kind? cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect make these kinds prior to others
+---@field unwanted_prefix? string[] filter out import items starting with the prefixes
+
+---@param opts cmp_lsp_rs.Opts | nil
+M.setup = function(opts)
   print("from nvim-cmp-lsp-rs")
+  if not opts then
+    return
+  end
+
+  if opts.kind then
+    M.kind:update(opts.kind)
+  end
+
+  if opts.unwanted_prefix then
+    M.unwanted_prefix_add(opts.unwanted_prefix)
+  end
 end
 
 M.kind = require("cmp_lsp_rs.sort_by_kind").kind
