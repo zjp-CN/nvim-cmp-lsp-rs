@@ -3,6 +3,7 @@ local M = {}
 ---@class cmp_lsp_rs.Opts
 ---@field kind? cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect make these kinds prior to others
 ---@field unwanted_prefix? string[] filter out import items starting with the prefixes
+---@field combo? cmp_lsp_rs.Combo combinations of comparators
 
 ---@param opts cmp_lsp_rs.Opts | nil
 M.setup = function(opts)
@@ -17,6 +18,21 @@ M.setup = function(opts)
 
   if opts.unwanted_prefix then
     M.unwanted_prefix.add(opts.unwanted_prefix)
+  end
+
+  if opts.combo then
+    -- override comparators
+    M.combo.comparators = {}
+    M.combo.names = {}
+    M.combo.pos = 0
+    for name, combo in pairs(opts.combo) do
+      if type(combo) == "table" then
+        table.insert(M.combo.comparators, combo)
+      else
+        table.insert(M.combo.comparators, combo())
+      end
+      table.insert(M.combo.names, name)
+    end
   end
 end
 
@@ -100,5 +116,24 @@ end
 
 M.comparators = require("cmp_lsp_rs.comparators")
 M.log = require("cmp_lsp_rs.log")
+
+M.combo = setmetatable({
+  pos = 0,
+  comparators = {
+    { M.comparators.inherent_import_inscope, M.comparators.sort_by_label },
+    { M.comparators.inscope_inherent_import, M.comparators.sort_by_label },
+  },
+  names = {
+    "inherent_import_inscope + sort_by_label",
+    "inscope_inherent_import + sort_by_label",
+  },
+}, {
+  __call = function(t)
+    t.pos = t.pos % #t.comparators + 1
+    require("cmp").get_config().sorting.comparators = t.comparators[t.pos]
+    local msg = string.format("[nvim-cmp] Comparators have switched to: %s", t.names[t.pos])
+    vim.notify(msg, vim.log.levels.INFO)
+  end,
+})
 
 return M

@@ -45,3 +45,7 @@
 
 ---A kind or a list of kind.
 ---@alias cmp_lsp_rs.Kinds lsp.CompletionItemKind[] | lsp.CompletionItemKind
+
+---@alias cmp_lsp_rs.ComparatorFunction cmp.ComparatorFunction[] | func(): cmp.ComparatorFunction[]
+
+---@alias cmp_lsp_rs.Combo table<string,  cmp_lsp_rs.ComparatorFunction>
