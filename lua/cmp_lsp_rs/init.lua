@@ -36,8 +36,10 @@ end
 
 ---Set the kinds with most priorities.
 ---
----This will update the kind sorting order with one kind integer or a list of
----integer or a call back that returns a list of integer.
+---This will update the kind sorting order with one kind or a list of kind
+---or a call back that returns a list of integer.
+---
+---A kind can be lsp.CompletionItemKind integer or a string name.
 ---
 ---In the callback `function(k)`, you can specify `k.Module` or somthing in lsp
 ---context to easily write the kinds.
@@ -45,9 +47,9 @@ end
 ---NOTE: the integer is not checked for range. Be careful to the CompletionItemKind
 ---meaning when you specify it in integer form.
 ---
----Usaully you pass incomplete kind list in: the rest kinds will be appended
+---Usaully you pass incomplete kind list in, and the rest kinds will be appended
 ---to the list in the order specified by the default kind ordering in this plugin.
----@param kinds cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect
+---@param kinds cmp_lsp_rs.KindNames | cmp_lsp_rs.KindSelect | cmp_lsp_rs.Kinds
 M.kind.set = function(kinds)
   kind:set(kinds)
 end

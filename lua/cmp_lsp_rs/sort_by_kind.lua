@@ -1,6 +1,7 @@
 local M = {}
 local lsp = require("cmp.types.lsp")
 local kind = lsp.CompletionItemKind
+local query = require("cmp_lsp_rs.log").CompletionItemKindStringQuery
 
 ---Default kind ordering.
 ---@type lsp.CompletionItemKind[]
@@ -83,12 +84,23 @@ end
 -- Set default ordering
 M.kind:replace(kind_ordering)
 
----@param k cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect
+---@param k cmp_lsp_rs.KindNames | cmp_lsp_rs.KindSelect |cmp_lsp_rs.Kinds
 function M.kind:set(k)
   local kinds = {}
   -- FIXME: need to check the range
   if type(k) == "table" then
-    kinds = k
+    if #k == 0 then
+      return
+    end
+    if type(k[1]) == "string" then
+      for _, s in ipairs(k) do
+        table.insert(kinds, query[s])
+      end
+    else
+      kinds = k
+    end
+  elseif type(k) == "string" then
+    kinds = { query[k] }
   elseif type(k) == "number" then
     kinds = { k }
   elseif type(k) == "function" then

@@ -69,4 +69,44 @@ M.CompletionItemKindString = {
   [25] = "TypeParameter",
 }
 
+--- lsp.CompletionItemKind list, but in string.
+M.CompletionItemKindStringQuery = setmetatable({
+  Text = 1,
+  Method = 2,
+  Function = 3,
+  Constructor = 4,
+  Field = 5,
+  Variable = 6,
+  Class = 7,
+  Interface = 8,
+  Module = 9,
+  Property = 0,
+  Unit = 1,
+  Value = 2,
+  Enum = 3,
+  Keyword = 4,
+  Snippet = 5,
+  Color = 6,
+  File = 7,
+  Reference = 8,
+  Folder = 9,
+  EnumMember = 0,
+  Constant = 1,
+  Struct = 2,
+  Event = 3,
+  Operator = 4,
+  TypeParameter = 5,
+}, {
+  __index = function(t, k)
+    -- throw error and point out valid names
+    local names = ""
+    local sep = false
+    for name, _ in pairs(t) do
+      names = names .. (sep and ", " or "") .. name
+      sep = true
+    end
+    error(string.format("%s is not a valid lsp.CompletionItemKind name\nThe valid names are %s", k, names))
+  end,
+})
+
 return M

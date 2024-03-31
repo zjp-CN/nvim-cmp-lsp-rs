@@ -40,5 +40,8 @@
 ---A handy way to write the CompletionItemKind from the argument.
 ---@alias cmp_lsp_rs.KindSelect fun(kind: cmp_lsp_rs.CompletionItemKind): lsp.CompletionItemKind[]
 
+---A kind or a list of kind name.
+---@alias cmp_lsp_rs.KindNames string[] | string
+
 ---A kind or a list of kind.
 ---@alias cmp_lsp_rs.Kinds lsp.CompletionItemKind[] | lsp.CompletionItemKind
