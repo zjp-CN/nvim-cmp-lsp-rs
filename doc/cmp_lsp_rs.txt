@@ -1,0 +1,130 @@
+*cmp_lsp_rs* *nvim-cmp-lsp-rs*
+
+Refine completion behavior by applying useful filtering and sorting for
+candidates, but only specific to Rust filetype (or rather Rust-Analyzer).
+
+==============================================================================
+Configuration ............................................ *cmp_lsp_rs-config*
+
+
+
+==============================================================================
+                                                           *cmp_lsp_rs-config*
+
+This plugin should be a plugin of `nvim-cmp`, which means the completion 
+behavior is affacted by specifying `sorting.comparators` and `entry_filter`
+in nvim-cmp.
+
+Here's how to do in lazy.nvim
+
+>lua
+  {
+    "hrsh7th/nvim-cmp",
+    dependencies = {
+      {
+        "zjp-CN/nvim-cmp-lsp-rs",
+        ---@type cmp_lsp_rs.Opts
+        opts = {
+          -- Filter out import items starting with one of these prefixes.
+          -- A prefix can be crate name, module name or anything an import 
+          -- path starts with, no matter it's complete or incomplete.
+          -- Only literals are recognized: no regex matching.
+          unwanted_prefix = { "color", "ratatui::style::Styled" },
+          -- make these kinds prior to others
+          -- e.g. make Module kind first, and then Function second,
+          --      the rest ordering is merged from a default kind list
+          kind = function(k) 
+            // The argument in callback is type-aware with opts annotated,
+            // so you can type the CompletionKind easily.
+            return { k.Module, k.Function }
+          end,
+        },
+      },
+    },
+    --@param opts cmp.ConfigSchema
+    opts = function(_, opts)
+      local cmp_lsp_rs = require("cmp_lsp_rs")
+      local comparators = cmp_lsp_rs.comparators
+
+      opts.sorting.comparators = {
+        -- comparators.inherent_import_inscope,
+        comparators.inscope_inherent_import,
+        comparators.sort_by_label_but_underscore_last,
+      }
+
+      for _, source in ipairs(opts.sources) do
+        cmp_lsp_rs.filter_out.entry_filter(source)
+      end
+
+      return opts
+    end,
+  }
+<
+
+`unwanted_prefix` only applies to import items, with items in scope unaffacted.
+
+When specifying the kind list, you can directly pass in a list of integer that 
+`lsp.CompletionItemKind` represents. So `kind = { 9, 3 }` behaves the same way.
+
+It's totally fine to omit opts on nvim-cmp-lsp-rs, and dynamically 
+change them in runtime when you already open a rust file and RA starts.
+
+The way to inject into nvim-cmp's config is by overriding comparators list 
+and entry_filter for nvim_lsp source.
+
+NOTE: we use a callback to modify opts on nvim-cmp, because opts table form 
+can't make this plugin work. Maybe this is a nuance from lazy.nvim. Therefore,
+you should change your settings
+
+
+
+==============================================================================
+                              *cmp_lsp_rs.comparators.inscope_inherent_import*
+inscope_inherent_import ~
+
+
+>lua
+ local cmp_rs = require("cmp_lsp_rs")
+ local comparators = cmp_rs.comparators
+ 
+ opts.sorting.comparators = {
+   comparators.inscope_inherent_import,
+   comparators.sort_by_label_but_underscore_last,
+ }
+<
+
+Sorting Behaviors
+
+* in-scope items
+  * kind order: Field -> Method -> rest
+    * alphabetic sort on item names separately in the same kind
+  * method order: inherent -> trait
+    * alphabetic sort on method names in inherent
+    * alphabetic sort on trait names in trait methods
+    * alphabetic sort on method names in the same trait
+* import items
+  * kind order
+    * alphabetic sort on item names separately in the same kind
+  * trait method order
+    * alphabetic sort on trait names in trait methods
+    * alphabetic sort on method names in the same trait
+
+>rust
+ [entry 1] s
+ [entry 2] render(…)
+ [entry 3] zzzz()
+ [entry 4] f() (as AAA)
+ [entry 5] z() (as AAA)
+ [entry 6] into() (as Into)
+ [entry 7] try_into() (as TryInto)
+ ... other kinds
+ [entry 24] bg() (use color_eyre::owo_colors::OwoColorize)
+ ... methods from color_eyre::owo_colors::OwoColorize trait
+ [entry 79] yellow() (use color_eyre::owo_colors::OwoColorize)
+ [entry 80] type_id() (use std::any::Any)
+ [entry 81] borrow() (use std::borrow::Borrow)
+ [entry 82] borrow_mut() (use std::borrow::BorrowMut)
+ ... other kinds
+<
+
+vim:tw=78:ts=8:noet:ft=help:norl:
