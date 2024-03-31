@@ -19,11 +19,13 @@ end
 ---@type string[]
 M.rust_unwanted_prefix_for_methods = {}
 
+---Override unwanted prefix.
+---@param crates string[]
+function M.rust_unwanted_prefix_for_methods_set(crates)
+  M.rust_unwanted_prefix_for_methods = crates
+end
+
 ---Append given crates to current unwanted set.
----
----Other updating behavior:
----* use `filter_out:rust_unwanted_prefix_for_methods = { ... }` to override
----* use `filter_out:rust_unwanted_prefix_for_methods_remove({...})` to remove
 ---@param crates string[]
 function M.rust_unwanted_prefix_for_methods_add(crates)
   for _, crate in ipairs(crates) do
@@ -43,10 +45,6 @@ function M.rust_unwanted_prefix_for_methods_add(crates)
 end
 
 ---Remove given crates from current unwanted set.
----
----Other updating behavior:
----* use `filter_out:rust_unwanted_prefix_for_methods = { ... }` to override
----* use `filter_out:rust_unwanted_prefix_for_methods_add({...})` to append
 ---@param crates string[]
 function M.rust_unwanted_prefix_for_methods_remove(crates)
   local remove = {}

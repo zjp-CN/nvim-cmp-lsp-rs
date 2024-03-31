@@ -71,16 +71,8 @@ M.kind = {
   ordering = {},
 }
 
----Construct or update the kind ordering with an array.
----
----The given kinds don't have to be complete lsp.CompletionItemKind list, but
----still recommend to pass a complete ordering list as much as possible,
----in case of poor UX in seeing annoying overlapping kinds on candidates.
----
----If you don't want to write a complete ordering set, use `:update()` instead,
----which handles incomplete ordering set by merging your and the default.
 ---@param kinds lsp.CompletionItemKind[]
-function M.kind:new(kinds)
+function M.kind:replace(kinds)
   local ordering = {}
   for idx, k in ipairs(kinds) do
     ordering[k] = idx
@@ -89,31 +81,20 @@ function M.kind:new(kinds)
 end
 
 -- Set default ordering
-M.kind:new(kind_ordering)
+M.kind:replace(kind_ordering)
 
----Update the kind sorting order with one kind integer or a list of integer or
----a call back that returns a list of integer.
----
----In the callback `function(k)`, you can specify `k.Module` or somthing in lsp
----context to easily write the kinds.
----
----NOTE: the integer is not checked for range. Be careful to the CompletionItemKind
----meaning when you specify it in integer form.
----
----Usaully you pass incomplete kind list in: the rest kinds will be appended
----to the list in the order specified by the default kind ordering in this plugin.
----@param f cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect
-function M.kind:update(f)
+---@param k cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect
+function M.kind:set(k)
   local kinds = {}
   -- FIXME: need to check the range
-  if type(f) == "table" then
-    kinds = f
-  elseif type(f) == "number" then
-    kinds = { f }
-  elseif type(f) == "function" then
-    kinds = f(kind)
+  if type(k) == "table" then
+    kinds = k
+  elseif type(k) == "number" then
+    kinds = { k }
+  elseif type(k) == "function" then
+    kinds = k(kind)
   end
-  M.kind:new(merge(kinds))
+  M.kind:replace(merge(kinds))
 end
 
 ---@param e1 cmp.Entry

@@ -4,7 +4,9 @@ Refine completion behavior by applying useful filtering and sorting for
 candidates, but only specific to Rust filetype (or rather Rust-Analyzer).
 
 ==============================================================================
-Configuration ............................................ *cmp_lsp_rs-config*
+Contents
+Configuration ............................................ |cmp_lsp_rs-config|
+Comparators ......................................... |cmp_lsp_rs.comparators|
 
 
 
@@ -34,8 +36,8 @@ Here's how to do in lazy.nvim
           -- e.g. make Module kind first, and then Function second,
           --      the rest ordering is merged from a default kind list
           kind = function(k) 
-            // The argument in callback is type-aware with opts annotated,
-            // so you can type the CompletionKind easily.
+            -- The argument in callback is type-aware with opts annotated,
+            -- so you can type the CompletionKind easily.
             return { k.Module, k.Function }
           end,
         },
@@ -90,6 +92,10 @@ The entry_filter will only apply to nvim_lsp source and rust filetype.
 Currently, it filters out import methods with unwanted_prefix.
 
 ==============================================================================
+                                                      *cmp_lsp_rs.comparators*
+
+Two sorting functions are provided.
+
                               *cmp_lsp_rs.comparators.inscope_inherent_import*
 inscope_inherent_import ~
 
@@ -104,7 +110,7 @@ inscope_inherent_import ~
  }
 <
 
-Sorting Behaviors
+Sorting Behaviors:
 
 * in-scope items
   * kind order: Field -> Method -> rest
@@ -121,7 +127,7 @@ Sorting Behaviors
     * alphabetic sort on method names in the same trait
 
 >rust
- [entry 1] s
+ [entry 1] s (this is a Field)
  [entry 2] render(…)
  [entry 3] zzzz()
  [entry 4] f() (as AAA)
@@ -137,5 +143,88 @@ Sorting Behaviors
  [entry 82] borrow_mut() (use std::borrow::BorrowMut)
  ... other kinds
 <
+
+
+                              *cmp_lsp_rs.comparators.inherent_import_inscope*
+inherent_import_inscope ~
+
+
+>lua
+  local cmp_rs = require("cmp_lsp_rs")
+  local comparators = cmp_rs.comparators
+  
+  opts.sorting.comparators = {
+    comparators.inherent_import_inscope,
+    comparators.sort_by_label_but_underscore_last,
+  }
+<
+
+Sorting Behaviors:
+
+* kind order: Field -> Method -> rest
+  * alphabetic sort on item names separately in the same kind
+  * method order
+    * inherent methods
+      * alphabetic sort on method names
+    * trait methods
+      * in-scope methods
+        * alphabetic sort on trait names in trait methods
+        * alphabetic sort on method names in the same trait
+      * import methods
+          * alphabetic sort on trait names in trait methods
+          * alphabetic sort on method names in the same trait
+
+>rust
+  [entry 1] s (this is a Field)
+  [entry 2] render(…)
+  [entry 3] zzzz()
+  [entry 4] f() (as AAA)
+  [entry 5] z() (as AAA)
+  [entry 6] into() (as Into)
+  [entry 7] try_into() (as TryInto)
+  [entry 8] bg() (use color_eyre::owo_colors::OwoColorize)
+  ... (use color_eyre::owo_colors::OwoColorize)
+  [entry 63] yellow() (use color_eyre::owo_colors::OwoColorize)
+  [entry 64] type_id() (use std::any::Any)
+  [entry 65] borrow() (use std::borrow::Borrow)
+  [entry 66] borrow_mut() (use std::borrow::BorrowMut)
+  ... 
+<
+
+==============================================================================
+                                                  *cmp_lsp_rs-runtime-setting*
+
+The filtering and sorting in nvim-cmp are pretty dynamic and straightforward.
+
+Each entry from various sources will be passed into `entry_filter` which a 
+function accepts and returns if it returns true. Then a table of entries will
+be sorted by a list of comparator.
+
+Dynamic Unwanted Prefix ~
+
+>vim
+  :lua rs = require'cmp_lsp_rs'
+  :lua rs.unwanted_prefix.set({...}) -- override
+  :lua rs.unwanted_prefix.add({...}) -- append
+  :lua rs.unwanted_prefix.remove({...}) -- delete
+<
+
+The argument for them can be a `string` or `string[]`.
+
+Dynamic Comparators ~
+
+If you want to override comparators nvim-cmp calls when experimenting them,
+you can run these commands.
+
+>vim
+  :lua rs = require'cmp_lsp_rs'
+  :lua cmp = require'cmp'
+  :lua cmp.get_config().sorting.comparators = { rs.comparators.sort_by_label }
+<
+
+You can use the idea to switch between given lists of comparators via keymap.
+
+
+
 
 vim:tw=78:ts=8:noet:ft=help:norl:

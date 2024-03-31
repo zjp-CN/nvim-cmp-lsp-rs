@@ -12,27 +12,86 @@ M.setup = function(opts)
   end
 
   if opts.kind then
-    M.kind:update(opts.kind)
+    M.kind.set(opts.kind)
   end
 
   if opts.unwanted_prefix then
-    M.unwanted_prefix_add(opts.unwanted_prefix)
+    M.unwanted_prefix.add(opts.unwanted_prefix)
   end
 end
 
-M.kind = require("cmp_lsp_rs.sort_by_kind").kind
+M.kind = {}
+
+local kind = require("cmp_lsp_rs.sort_by_kind").kind
+
+---Get the current kind ordering in human-read form.
+M.kind.get = function()
+  local set = require("cmp_lsp_rs.log").CompletionItemKindString
+  local ordering = {}
+  for _, k in ipairs(kind.ordering) do
+    table.insert(ordering, set[k])
+  end
+  return set
+end
+
+---Override with a new list of kind ordering.
+---
+---The input is a list of integer that lsp.CompletionItemKind represents.
+---Recommend to pass a complete ordering list as much as possible,
+---in case of poor UX in seeing annoying overlapping kinds on candidates.
+---
+---If you don't want to write a complete ordering, use `.update()` instead,
+---which handles incomplete case by merging your and the default.
+---@param kinds lsp.CompletionItemKind[]
+M.kind.replace = function(kinds)
+  kind:replace(kinds)
+end
+
+---Set the kinds with most priorities.
+---
+---This will update the kind sorting order with one kind integer or a list of
+---integer or a call back that returns a list of integer.
+---
+---In the callback `function(k)`, you can specify `k.Module` or somthing in lsp
+---context to easily write the kinds.
+---
+---NOTE: the integer is not checked for range. Be careful to the CompletionItemKind
+---meaning when you specify it in integer form.
+---
+---Usaully you pass incomplete kind list in: the rest kinds will be appended
+---to the list in the order specified by the default kind ordering in this plugin.
+---@param kinds cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect
+M.kind.set = function(kinds)
+  kind:set(kinds)
+end
+
 M.filter_out = require("cmp_lsp_rs.filter_out")
 
----Filter out import items the import path of which starts with one of these path prefixes.
+M.unwanted_prefix = {}
+
+M.unwanted_prefix.get = function()
+  return M.filter_out.rust_unwanted_prefix_for_methods
+end
+
+---Override prefix(es) to exclude import methods.
+---
+---Filter out import methods the import path of which starts with one of these path prefixes.
 ---
 ---The prefix set doesn't affact items already imported in scope. That said if `a::b` is in
 ---the unwanted_prefix set, but `a::b` is in scope, all items under `a::b` are not import
 ---items any more, thus they (including trait methods) will appear normally.
-M.unwanted_prefix = M.filter_out.rust_unwanted_prefix_for_methods
-
----Add one or multiple prefix(es) to exclude import items.
 ---@param prefix string | string[]
-M.unwanted_prefix_add = function(prefix)
+M.unwanted_prefix.set = function(prefix)
+  if type(prefix) == "string" then
+    M.filter_out.rust_unwanted_prefix_for_methods_set({ prefix })
+  else
+    M.filter_out.rust_unwanted_prefix_for_methods_set(prefix)
+  end
+end
+
+---Add one or multiple prefix(es) to exclude import methods.
+---@param prefix string | string[]
+M.unwanted_prefix.add = function(prefix)
   if type(prefix) == "string" then
     M.filter_out.rust_unwanted_prefix_for_methods_add({ prefix })
   else
@@ -40,9 +99,9 @@ M.unwanted_prefix_add = function(prefix)
   end
 end
 
----Remove one or multiple prefix(es) to exclude import items.
+---Remove one or multiple prefix(es) to exclude import methods.
 ---@param prefix string | string[]
-M.unwanted_prefix_remove = function(prefix)
+M.unwanted_prefix.remove = function(prefix)
   if type(prefix) == "string" then
     M.filter_out.rust_unwanted_prefix_for_methods_remove({ prefix })
   else
