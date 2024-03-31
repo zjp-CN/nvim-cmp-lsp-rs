@@ -200,16 +200,28 @@ Each entry from various sources will be passed into `entry_filter` which a
 function accepts and returns if it returns true. Then a table of entries will
 be sorted by a list of comparator.
 
+                                                  *cmp_lsp_rs.unwanted_prefix*
 Dynamic Unwanted Prefix ~
 
 >vim
   :lua rs = require'cmp_lsp_rs'
-  :lua rs.unwanted_prefix.set({...}) -- override
-  :lua rs.unwanted_prefix.add({...}) -- append
-  :lua rs.unwanted_prefix.remove({...}) -- delete
+  :lua rs.unwanted_prefix.get()    -- query
+  :lua rs.unwanted_prefix.set(...) -- override
+  :lua rs.unwanted_prefix.add(...) -- append
+  :lua rs.unwanted_prefix.remove(...) -- delete
 <
 
-The argument for them can be a `string` or `string[]`.
+The argument `{...}` for them can be a `string` or `string[]`.
+
+Dynamic Kind Sorting ~
+
+>vim
+  :lua rs = require'cmp_lsp_rs'
+  :lua rs.kind.get()    -- query
+  :lua rs.kind.set(...) -- set incomplete kind ordering with most priorities
+  :lua rs.kind.replace(...) -- set complete kind ordering
+<
+
 
 Dynamic Comparators ~
 
