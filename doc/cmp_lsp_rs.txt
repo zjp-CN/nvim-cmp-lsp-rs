@@ -74,9 +74,20 @@ and entry_filter for nvim_lsp source.
 
 NOTE: we use a callback to modify opts on nvim-cmp, because opts table form 
 can't make this plugin work. Maybe this is a nuance from lazy.nvim. Therefore,
-you should change your settings
+you should tweak your original opts to this way.
 
+The order in comparators list matters. `inscope_inherent_import` or 
+`inherent_import_inscope` is used with `kind`. They will sort Rust entries
+by kind, and then group for inherent vs trait methods and in-scope vs import 
+items. They will also affact non-Rust entries, but only sort them by kind. 
 
+`sort_by_label_but_underscore_last` will sort the entries the first comparator 
+emits nil on. The sort is alphabetic, but `_` will be put to the last. This 
+is most desired because it means low priority in most cases. If you don't want 
+`_` to be last, use `sort_by_kind` instead.
+
+The entry_filter will only apply to nvim_lsp source and rust filetype.
+Currently, it filters out import methods with unwanted_prefix.
 
 ==============================================================================
                               *cmp_lsp_rs.comparators.inscope_inherent_import*
