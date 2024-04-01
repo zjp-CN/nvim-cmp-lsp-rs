@@ -15,7 +15,7 @@ and after (both are improved, which is better depends on your usecase!)
 
 ![](https://github.com/zjp-CN/nvim-cmp-lsp-rs/assets/25300418/83bda386-a5e8-4040-ae7f-56cd9501da4f)
 
-One of the improvements is alphabetic sortings separately on inherent methods,
+One of the improvements is alphabetic sorting separately on inherent methods,
 in-scope trait methods and to-be-imported trait methods.
 
 For more usage, jump to [Usage](#usage) section by skipping mutters in Background.
@@ -31,7 +31,7 @@ Have you been aware of the great [comparators][cmp-comparators] in [nvim-cmp]?
 [cmp-comparators]: https://github.com/hrsh7th/nvim-cmp/blob/97dc716fc914c46577a4f254035ebef1aa72558a/lua/cmp/config/compare.lua
 
 The default sorting is defined as below, which means if you use [`LazyVim`], you'll see the
-weird completion item list exactly as the first picture show.
+weird completion item list exactly as the first picture shows.
 
 [`LazyVim`]: https://www.lazyvim.org/
 
