@@ -46,6 +46,11 @@
 ---A kind or a list of kind.
 ---@alias cmp_lsp_rs.Kinds lsp.CompletionItemKind[] | lsp.CompletionItemKind
 
----@alias cmp_lsp_rs.ComparatorFunction cmp.ComparatorFunction[] | func(): cmp.ComparatorFunction[]
+---@alias cmp_lsp_rs.ComparatorFunction cmp.ComparatorFunction[] | fun(): cmp.ComparatorFunction[]
 
 ---@alias cmp_lsp_rs.Combo table<string,  cmp_lsp_rs.ComparatorFunction>
+
+---@class cmp_lsp_rs.Opts
+---@field kind? cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect make these kinds prior to others
+---@field unwanted_prefix? string[] filter out import items starting with the prefixes
+---@field combo? cmp_lsp_rs.Combo combinations of comparators

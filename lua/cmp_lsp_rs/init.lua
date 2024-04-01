@@ -1,6 +1,8 @@
 local M = {}
 
-local set_cmp = function()
+---In case of setup failure for nvim-cmp, you can call this function to
+---override configuration on it when nvim-cmp is fully loaded.
+M.force_set_cmp = function()
   local cmp = require("cmp")
   local opts = cmp.get_config()
   opts.sorting.comparators = {
@@ -11,17 +13,10 @@ local set_cmp = function()
   for _, source in ipairs(opts.sources) do
     M.filter_out.entry_filter(source)
   end
-  print("set for cmp")
 end
-
----@class cmp_lsp_rs.Opts
----@field kind? cmp_lsp_rs.Kinds | cmp_lsp_rs.KindSelect make these kinds prior to others
----@field unwanted_prefix? string[] filter out import items starting with the prefixes
----@field combo? cmp_lsp_rs.Combo combinations of comparators
 
 ---@param opts cmp_lsp_rs.Opts | nil
 M.setup = function(opts)
-  print("from nvim-cmp-lsp-rs")
   if not opts then
     return
   end
@@ -48,8 +43,6 @@ M.setup = function(opts)
       table.insert(M.combo.names, name)
     end
   end
-
-  set_cmp()
 end
 
 M.kind = {}
