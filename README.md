@@ -259,7 +259,7 @@ Sorting Behaviors:
  ... other kinds
 ```
 
-### inherent_import_inscope
+#### inherent_import_inscope
 
 ```lua
   local cmp_rs = require("cmp_lsp_rs")
