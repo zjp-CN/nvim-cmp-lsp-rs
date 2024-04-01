@@ -380,9 +380,9 @@ This is mainly used in debuging.
 
 The filtering and sorting in nvim-cmp are pretty dynamic and straightforward.
 
-Each entry from various sources will be passed into `entry_filter` which a 
-function accepts and returns if it returns true. Then a table of entries will
-be sorted by a list of comparator.
+Each entry from various sources will be passed into `entry_filter`, a 
+function that accepts an entry and returns the entry if the function returns 
+true. Then a table of entries will be sorted by a list of comparator.
 
 #### Dynamic Unwanted Prefix
 ```vim
