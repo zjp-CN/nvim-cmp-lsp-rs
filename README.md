@@ -55,7 +55,7 @@ sorting = {
 
 The problem is not about each sorting, but about the combination of sortings.
 
-`compare.kind` is very close to the end, meaning it'll be used only if all the sortings 
+`compare.kind` is very close to the tail, meaning it'll be used only if all the sortings 
 before it return nil.
 
 A comparator is a sorting function [used] in `table.sort` to compare two arguments passed in.
@@ -68,8 +68,8 @@ A comparator in the form of `fn(a, b)` returns
 [used]: https://github.com/hrsh7th/nvim-cmp/blob/97dc716fc914c46577a4f254035ebef1aa72558a/lua/cmp/view.lua#L64
 
 So if you want a simplist and general solution, putting `require("cmp").config.compare.kind` first might be good.
-It sort the completion items in [completionItemKind] order, but with Text kind lowest priority and Snippet kind 
-a bit higher in some cases. 
+It sort the completion items in [completionItemKind] order, but with Text kind always lowest priority and Snippet
+kind a bit higher in some cases. 
 
 [completionItemKind]: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItemKind
 
@@ -105,4 +105,331 @@ Why are you telling me this story or details?
 
 ### Usage
 
-TODO
+This plugin should be a plugin of `nvim-cmp`, which means the completion 
+behavior is affacted by specifying `sorting.comparators` and `entry_filter`
+in nvim-cmp.
+
+Here's how to do in lazy.nvim (NOT default setting)
+```lua
+  {
+    "hrsh7th/nvim-cmp",
+    keys = {
+        -- See opts.combo from nvim-cmp-lsp-rs below
+        {
+          "<leader>bc",
+          "<cmd>lua require'cmp_lsp_rs'.combo()<cr>",
+          desc = "(nvim-cmp) switch comparators"
+        },
+    },
+    dependencies = {
+      {
+        "zjp-CN/nvim-cmp-lsp-rs",
+        ---@type cmp_lsp_rs.Opts
+        opts = {
+          -- Filter out import items starting with one of these prefixes.
+          -- A prefix can be crate name, module name or anything an import 
+          -- path starts with, no matter it's complete or incomplete.
+          -- Only literals are recognized: no regex matching.
+          unwanted_prefix = { "color", "ratatui::style::Styled" },
+          -- make these kinds prior to others
+          -- e.g. make Module kind first, and then Function second,
+          --      the rest ordering is merged from a default kind list
+          kind = function(k) 
+            -- The argument in callback is type-aware with opts annotated,
+            -- so you can type the CompletionKind easily.
+            return { k.Module, k.Function }
+          end,
+          -- Override the default comparator list provided by this plugin.
+          -- Mainly used with key binding to switch between these Comparators.
+          combo = {
+            -- The key is the name for combination of comparators and used 
+            -- in notification in swiching.
+            -- The value is a list of comparators functions or a function 
+            -- to generate the list.
+            alphabetic_label_but_underscore_last = function()
+              local comparators = require("cmp_lsp_rs").comparators
+              return { comparators.sort_by_label_but_underscore_last }
+            end,
+            recentlyUsed_sortText = function()
+              local compare = require("cmp").config.compare
+              local comparators = require("cmp_lsp_rs").comparators
+              -- Mix cmp sorting function with cmp_lsp_rs.
+              return {
+                compare.recently_used,
+                compare.sort_text,
+                comparators.sort_by_label_but_underscore_last
+              }
+            end,
+          },
+        },
+      },
+    },
+    --@param opts cmp.ConfigSchema
+    opts = function(_, opts)
+      local cmp_lsp_rs = require("cmp_lsp_rs")
+      local comparators = cmp_lsp_rs.comparators
+
+      opts.sorting.comparators = {
+        -- comparators.inherent_import_inscope,
+        comparators.inscope_inherent_import,
+        comparators.sort_by_label_but_underscore_last,
+      }
+
+      for _, source in ipairs(opts.sources) do
+        cmp_lsp_rs.filter_out.entry_filter(source)
+      end
+
+      return opts
+    end,
+  }
+```
+`unwanted_prefix` only applies to import items, with items in scope unaffacted.
+
+When specifying the kind list, you can directly pass in a list of integer that 
+`lsp.CompletionItemKind` represents. So `kind = { 9, 3 }` behaves the same way.
+
+It's totally fine to omit opts on nvim-cmp-lsp-rs, and dynamically 
+change them in runtime when you already open a rust file and RA starts.
+
+The way to inject into nvim-cmp's config is by overriding comparators list 
+and entry_filter for nvim_lsp source.
+
+NOTE: we use a callback to modify opts on nvim-cmp, because opts table form 
+can't make this plugin work. Maybe this is a nuance from lazy.nvim. Therefore,
+you should tweak your original opts to this way.
+
+The order in comparators list matters. `inscope_inherent_import` or 
+`inherent_import_inscope` is used with `kind`. They will sort Rust entries
+by kind, and then group for inherent vs trait methods and in-scope vs import 
+items. They will also affact non-Rust entries, but only sort them by kind. 
+
+`sort_by_label_but_underscore_last` will sort the entries the first comparator 
+emits nil on. The sort is alphabetic, but `_` will be put to the last. This 
+is most desired because it means low priority in most cases. If you don't want 
+`_` to be last, use `sort_by_kind` instead.
+
+The entry_filter will only apply to nvim_lsp source and rust filetype.
+Currently, it filters out import methods with unwanted_prefix.
+
+### cmp_lsp_rs.comparators
+
+Two sorting functions are provided.
+
+#### inscope_inherent_import
+
+```lua
+ local cmp_rs = require("cmp_lsp_rs")
+ local comparators = cmp_rs.comparators
+ 
+ opts.sorting.comparators = {
+   comparators.inscope_inherent_import,
+   comparators.sort_by_label_but_underscore_last,
+ }
+```
+Sorting Behaviors:
+
+* in-scope items
+  * kind order: Field -> Method -> rest
+    * alphabetic sort on item names separately in the same kind
+  * method order: inherent -> trait
+    * alphabetic sort on method names in inherent
+    * alphabetic sort on trait names in trait methods
+    * alphabetic sort on method names in the same trait
+* import items
+  * kind order
+    * alphabetic sort on item names separately in the same kind
+  * trait method order
+    * alphabetic sort on trait names in trait methods
+    * alphabetic sort on method names in the same trait
+```rust
+ [entry 1] s (this is a Field)
+ [entry 2] render(…)
+ [entry 3] zzzz()
+ [entry 4] f() (as AAA)
+ [entry 5] z() (as AAA)
+ [entry 6] into() (as Into)
+ [entry 7] try_into() (as TryInto)
+ ... other kinds
+ [entry 24] bg() (use color_eyre::owo_colors::OwoColorize)
+ ... methods from color_eyre::owo_colors::OwoColorize trait
+ [entry 79] yellow() (use color_eyre::owo_colors::OwoColorize)
+ [entry 80] type_id() (use std::any::Any)
+ [entry 81] borrow() (use std::borrow::Borrow)
+ [entry 82] borrow_mut() (use std::borrow::BorrowMut)
+ ... other kinds
+```
+
+### inherent_import_inscope
+
+```lua
+  local cmp_rs = require("cmp_lsp_rs")
+  local comparators = cmp_rs.comparators
+  
+  opts.sorting.comparators = {
+    comparators.inherent_import_inscope,
+    comparators.sort_by_label_but_underscore_last,
+  }
+```
+Sorting Behaviors:
+
+* kind order: Field -> Method -> rest
+  * alphabetic sort on item names separately in the same kind
+  * method order
+    * inherent methods
+      * alphabetic sort on method names
+    * trait methods
+      * in-scope methods
+        * alphabetic sort on trait names in trait methods
+        * alphabetic sort on method names in the same trait
+      * import methods
+          * alphabetic sort on trait names in trait methods
+          * alphabetic sort on method names in the same trait
+```rust
+  [entry 1] s (this is a Field)
+  [entry 2] render(…)
+  [entry 3] zzzz()
+  [entry 4] f() (as AAA)
+  [entry 5] z() (as AAA)
+  [entry 6] into() (as Into)
+  [entry 7] try_into() (as TryInto)
+  [entry 8] bg() (use color_eyre::owo_colors::OwoColorize)
+  ... (use color_eyre::owo_colors::OwoColorize)
+  [entry 63] yellow() (use color_eyre::owo_colors::OwoColorize)
+  [entry 64] type_id() (use std::any::Any)
+  [entry 65] borrow() (use std::borrow::Borrow)
+  [entry 66] borrow_mut() (use std::borrow::BorrowMut)
+  ... 
+```
+
+### cmp_lsp_rs.combo
+
+See the configuration exampl in [usage](#usage) above.
+
+You can bind the function to a key to switch between defined combinations.
+
+The default is like
+```lua
+  {
+    ["inherent_import_inscope + sort_by_label"] = {
+      M.comparators.inherent_import_inscope, 
+      M.comparators.sort_by_label
+    },
+    ["inscope_inherent_import + sort_by_label"] = {
+      M.comparators.inscope_inherent_import,
+      M.comparators.sort_by_label
+    },
+  }
+```
+
+![toggle-combo](https://github.com/zjp-CN/nvim-cmp-lsp-rs/assets/25300418/ec77123b-0cc4-422b-9557-774d544ed57a)
+
+### cmp_lsp_rs.log
+
+You can call `require("cmp_lsp_rs").log.register()` to listen on `menu_opened`
+event emitted by nvim-cmp to obtain the last and sorted completion result 
+displayed to you.
+
+The log file is `entries.log` right under the current folder.
+
+This is mainly used in debuging. 
+
+<details>
+
+<summary>The format shouldn't be relied on. e.g.</summary>
+
+```rust
+  [entry 1] s
+    filter_text: s
+    kind: Field
+  [entry 2] render(…)
+    filter_text: render
+    kind: Method
+  [entry 3] zzzz()
+    filter_text: zzzz
+    kind: Method
+  [entry 4] f() (as AAA)
+    filter_text: f
+    kind: Method
+    [entry 5] z() (as AAA)
+    filter_text: z
+    kind: Method
+  [entry 6] into() (as Into)
+    filter_text: into
+    kind: Method
+  [entry 8] box
+    filter_text: box
+    kind: Snippet
+  [entry 80] type_id() (use std::any::Any)
+    filter_text: type_id
+    kind: Method
+    data: {
+    full_import_path = "std::any::Any",
+    imported_name = "Any"
+  }
+  [entry 84] arc (use std::sync::Arc)
+    filter_text: arc
+    kind: Snippet
+    data: {
+    full_import_path = "std::sync::Arc",
+    imported_name = "Arc"
+  }
+```
+</details>
+
+### Dynamic Setting in Runtime
+
+The filtering and sorting in nvim-cmp are pretty dynamic and straightforward.
+
+Each entry from various sources will be passed into `entry_filter` which a 
+function accepts and returns if it returns true. Then a table of entries will
+be sorted by a list of comparator.
+
+#### Dynamic Unwanted Prefix
+```vim
+  :lua rs = require'cmp_lsp_rs'
+  :lua rs.unwanted_prefix.get()    -- query
+  :lua rs.unwanted_prefix.set(...) -- override
+  :lua rs.unwanted_prefix.add(...) -- append
+  :lua rs.unwanted_prefix.remove(...) -- delete
+```
+The argument `{...}` for them can be a `string` or `string[]`.
+Default to empty.
+
+#### Dynamic Kind Sorting
+
+```vim
+  :lua rs = require'cmp_lsp_rs'
+  :lua rs.kind.get()    -- query
+  :lua rs.kind.set(...) -- set kind ordering with most priorities
+```
+The argument `...` for `set` can be one of these 
+* `string` name for kind
+* `string[]` names for kind
+* `integer` integer for kind
+* `integer[]` integers for kind
+* `function(k) -> integer[]` where k is of kind type and you can easily write 
+  the kinds like `k.Module` etc with lsp help. 
+
+e.g. for the last case, you can write 
+```lua
+  rs.kind.set(function(k) return { k.Module, k.Function })
+```
+
+The current default ordering is as follows:
+```
+  Variable Value Field EnumMember Property TypeParameter Method Module
+  Function Constructor Interface Class Struct Enum Constant Unit Keyword
+  Snippet Color File Folder Event Operator Reference Text 
+```
+
+#### Dynamic Comparators
+
+If you want to override comparators nvim-cmp calls when experimenting them,
+you can run these commands.
+```vim
+  :lua rs = require'cmp_lsp_rs'
+  :lua cmp = require'cmp'
+  :lua cmp.get_config().sorting.comparators = { rs.comparators.sort_by_label }
+```
+
+
