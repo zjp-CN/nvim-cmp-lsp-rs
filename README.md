@@ -392,8 +392,8 @@ be sorted by a list of comparator.
   :lua rs.unwanted_prefix.add(...) -- append
   :lua rs.unwanted_prefix.remove(...) -- delete
 ```
-The argument `{...}` for them can be a `string` or `string[]`.
-Default to empty.
+The argument `...` for them can be a `string` or `string[]`.
+`unwanted_prefix` is default to empty.
 
 #### Dynamic Kind Sorting
 
