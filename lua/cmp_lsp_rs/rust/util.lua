@@ -43,7 +43,7 @@ M._inherent = function(e1, e2)
 
   if trait1 == nil and trait2 == nil then
     -- both are inherent items, then compare by item name
-    return (c1.filterText or "") < (c2.filterText or "")
+    return nil
   end
 
   if trait1 == nil then
@@ -63,7 +63,7 @@ M._inherent = function(e1, e2)
   elseif path_ord == 1 then
     return false
   end
-  return (c1.filterText or "") < (c2.filterText or "")
+  return nil
 end
 
 return M
