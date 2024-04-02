@@ -124,7 +124,7 @@ items. They will also affact non-Rust entries, but only sort them by kind.
 `sort_by_label_but_underscore_last` will sort the entries the first comparator 
 emits nil on. The sort is alphabetic, but `_` will be put to the last. This 
 is most desired because it means low priority in most cases. If you don't want 
-`_` to be last, use `sort_by_kind` instead.
+`_` to be last, use `sort_by_label` instead.
 
 The entry_filter will only apply to nvim_lsp source and rust filetype.
 Currently, it filters out import methods with unwanted_prefix.
@@ -229,13 +229,13 @@ You can bind the function to a key to switch between defined combinations.
 The default is like
 >lua
   {
-    ["inherent_import_inscope + sort_by_label"] = {
+    ["inherent_import_inscope + sort_by_label_but_underscore_last"] = {
       M.comparators.inherent_import_inscope, 
-      M.comparators.sort_by_label
+      M.comparators.sort_by_label_but_underscore_last
     },
-    ["inscope_inherent_import + sort_by_label"] = {
+    ["inscope_inherent_import + sort_by_label_but_underscore_last"] = {
       M.comparators.inscope_inherent_import,
-      M.comparators.sort_by_label
+      M.comparators.sort_by_label_but_underscore_last
     },
   }
 <

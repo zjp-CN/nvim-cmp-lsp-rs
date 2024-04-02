@@ -129,12 +129,12 @@ M.log = require("cmp_lsp_rs.log")
 M.combo = setmetatable({
   pos = 0,
   comparators = {
-    { M.comparators.inherent_import_inscope, M.comparators.sort_by_label },
-    { M.comparators.inscope_inherent_import, M.comparators.sort_by_label },
+    { M.comparators.inherent_import_inscope, M.comparators.sort_by_label_but_underscore_last },
+    { M.comparators.inscope_inherent_import, M.comparators.sort_by_label_but_underscore_last },
   },
   names = {
-    "inherent_import_inscope + sort_by_label",
-    "inscope_inherent_import + sort_by_label",
+    "inherent_import_inscope + sort_by_label_but_underscore_last",
+    "inscope_inherent_import + sort_by_label_but_underscore_last",
   },
 }, {
   __call = function(t)
