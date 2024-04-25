@@ -86,8 +86,11 @@ Here's how to do in lazy.nvim (NOT default setting)
     opts = function(_, opts)
       local cmp_lsp_rs = require("cmp_lsp_rs")
       local comparators = cmp_lsp_rs.comparators
+      local compare = require("cmp").config.compare
 
       opts.sorting.comparators = {
+        compare.exact,
+        compare.score,
         -- comparators.inherent_import_inscope,
         comparators.inscope_inherent_import,
         comparators.sort_by_label_but_underscore_last,
@@ -125,6 +128,12 @@ items. They will also affact non-Rust entries, but only sort them by kind.
 emits nil on. The sort is alphabetic, but `_` will be put to the last. This 
 is most desired because it means low priority in most cases. If you don't want 
 `_` to be last, use `sort_by_label` instead.
+
+You may notice there are two comparators built in nvim-cmp as the first and
+second. It provides better typed characters matching across entry kinds.
+See [here] for demonstration of lacking them.
+
+[here]: https://github.com/zjp-CN/nvim-cmp-lsp-rs/issues/4
 
 The entry_filter will only apply to nvim_lsp source and rust filetype.
 Currently, it filters out import methods with unwanted_prefix.
