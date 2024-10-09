@@ -5,6 +5,13 @@ M.sort_by_kind = require("cmp_lsp_rs.sort_by_kind").sort_by_kind
 ---@param data1 cmp_lsp_rs.RACompletionResolveData
 ---@param data2 cmp_lsp_rs.RACompletionResolveData
 M._import = function(data1, data2)
+  if #data1.imports == 0 then
+    return false
+  end
+  if #data2.imports == 0 then
+    return true
+  end
+
   -- both are imported items
   -- usually RA emits exact one import path and item name;
   -- for multiple same item names, RA will emit distinct completion_items for their own paths
