@@ -39,14 +39,16 @@ end
 M._inherent = function(e1, e2)
   local c1 = e1.completion_item
   local c2 = e2.completion_item
-  local l1 = c1.label
-  local l2 = c2.label
+
+  -- these may be nil
+  local l1 = c1.labelDetails.detail
+  local l2 = c2.labelDetails.detail
 
   -- both are in scope
   -- then check the inherent items vs trait items
   local pat = " %(as (.*)%)"
-  local trait1 = l1:match(pat)
-  local trait2 = l2:match(pat)
+  local trait1 = string.match(l1 or "", pat)
+  local trait2 = string.match(l2 or "", pat)
 
   if trait1 == nil and trait2 == nil then
     -- both are inherent items, then compare by item name
