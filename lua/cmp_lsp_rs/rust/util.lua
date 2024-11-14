@@ -40,7 +40,6 @@ M._inherent = function(e1, e2)
   local c1 = e1.completion_item
   local c2 = e2.completion_item
 
-  -- Use c1.labelDetails.detail if it is not nil; otherwise, default to c1.label.
   local l1 = c1.label
   if c1.labelDetails and c1.labelDetails.detail then
     l1 = c1.labelDetails.detail
