@@ -25,6 +25,13 @@ M._import = function(data1, data2)
     -- e1 from lexically greater path
     return false
   else
+    if import1.imported_name == nil and import2.imported_name ~= nil then
+      return true
+    elseif import1.imported_name ~= nil and import2.imported_name == nil then
+      return false
+    elseif import1.imported_name == nil and import2.imported_name == nil then
+      return nil
+    end
     local item_ord = vim.stricmp(import1.imported_name, import2.imported_name)
     if item_ord == 1 then
       return false
